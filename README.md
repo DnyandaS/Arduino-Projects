@@ -1,6 +1,6 @@
 # Cat OLED Animation
 
-A small Arduino project: a cat on a tiny OLED screen that changes its expression when you press a button. Idle, it sits with big eyes and a calm face. Press the button and it squeezes its eyes shut and looks startled, as if it just hit the table. Let go and it goes back.
+A small Arduino project: a cat on a tiny OLED screen that changes its expression when you press a button. Idle, it sits with big eyes and a calm face. Press the button and it squeezes its eyes shut and looks startled, as if it just hit the table, and the buzzer plays a short thud. Let go and it goes back.
 
 I built it to practise writing my own Arduino code and to learn how to turn pictures into data a microcontroller can draw.
 
@@ -9,6 +9,7 @@ I built it to practise writing my own Arduino code and to learn how to turn pict
 - Arduino Nano (CH340 clone)
 - 0.96" SSD1306 OLED screen, 128x64, I2C (4 pins)
 - 1 push button
+- HW-508 passive buzzer module
 - Breadboard and jumper wires
 
 ## Wiring
@@ -21,6 +22,9 @@ I built it to practise writing my own Arduino code and to learn how to turn pict
 | OLED | SCK / SCL | A5 |
 | Button | one leg | D2 |
 | Button | other leg | GND |
+| Buzzer | S (signal) | D8 |
+| Buzzer | - (ground) | GND |
+| Buzzer | middle pin | not connected |
 
 The button uses the Nano's internal pull-up resistor (`INPUT_PULLUP`), so no extra resistor is needed. The pin reads `HIGH` normally and `LOW` while the button is pressed.
 
@@ -29,6 +33,7 @@ The button uses the Nano's internal pull-up resistor (`INPUT_PULLUP`), so no ext
 1. Two 128x64 black-and-white pictures, `cat_idle.png` and `cat_hit.png`, were converted to byte arrays with [image2cpp](https://javl.github.io/image2cpp/) (horizontal, 1 bit per pixel). The arrays are stored in `cat_oled_bitmap.h`.
 2. The arrays are marked `PROGMEM`, so they live in flash memory. The Nano only has 2 KB of RAM, and the screen buffer already uses 1 KB of it.
 3. In `loop()`, the sketch reads the button. If it is pressed it draws `cat_hit`, otherwise `cat_idle`, then sends the picture to the screen with `display.display()`.
+4. The buzzer is a passive one, so it needs a signal from the code. `tone(8, 300, 100)` plays a 300 Hz sound for 100 ms. A variable remembers whether the button was pressed on the previous pass through `loop()`, so the thud plays once per press and not continuously while the button is held down.
 
 ## Running it
 
@@ -47,6 +52,5 @@ The button uses the Nano's internal pull-up resistor (`INPUT_PULLUP`), so no ext
 
 ## Ideas for next
 
-- A short buzzer sound each time the cat is hit
 - A hit counter shown on the screen
 - Make the cat react when the board is shaken, using the MPU-6050
